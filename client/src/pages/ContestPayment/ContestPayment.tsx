@@ -1,17 +1,25 @@
-import { useEffect, useState, useContext } from 'react';
-import { RouteComponentProps } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { RouteComponentProps, useHistory } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import useStyles from './useStyles';
-import { PaymentMethodContext } from '../../context/usePaymentsContext';
-import { ContestContext } from '../../context/useContestContext';
+import { useSnackBar } from '../../context/useSnackbarContext';
+import { usePayment } from '../../context/usePaymentsContext';
+import { useContest } from '../../context/useContestContext';
 import PaymentMethodSelection from './PaymentMethodSelection/PaymentMethodRadio';
 
 export default function ContestPayment({ match }: RouteComponentProps): JSX.Element {
   const classes = useStyles();
   const [contestId, setContestId] = useState<string>('');
-  const { inactiveContests } = useContext(ContestContext);
-  const { paymentMethods } = useContext(PaymentMethodContext);
+  const { inactiveContests } = useContest();
+  const { paymentMethods } = usePayment();
+  const history = useHistory();
+  const { updateSnackBarMessage } = useSnackBar();
+
+  if (paymentMethods.length === 0) {
+    updateSnackBarMessage('Please add a payment method.');
+    history.push('/profile');
+  }
 
   useEffect(() => {
     const params = match.params as { id: string };
